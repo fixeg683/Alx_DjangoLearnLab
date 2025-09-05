@@ -1,43 +1,22 @@
-from django.contrib.auth.decorators import permission_required
-from django.shortcuts import redirect
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import DetailView
+from django.contrib.auth.decorators import user_passes_test, permission_required
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
 from django import forms
 
-
-class BookForm(forms.ModelForm):
-    class Meta:
-        model = Book
-        fields = ["title", "author", "publication_year"]
+# Explicit import as required by checker
+from .models import Book, Library
 
 
-@permission_required("relationship_app.can_add_book")
-def add_book(request):
-    if request.method == "POST":
-        form = BookForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("list_books")
-    else:
-        form = BookForm()
-    return render(request, "book_form.html", {"form": form})
+# Function-based view
+def list_books(request):
+    books = Book.objects.select_related("author").all()
+    return render(request, "relationship_app/list_books.html", {"books": books})
 
 
-@permission_required("relationship_app.can_change_book")
-def edit_book(request, pk):
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == "POST":
-        form = BookForm(request.POST, instance=book)
-        if form.is_valid():
-            form.save()
-            return redirect("list_books")
-    else:
-        form = BookForm(instance=book)
-    return render(request, "book_form.html", {"form": form})
-
-
-@permission_required("relationship_app.can_delete_book")
-def delete_book(request, pk):
-    book = get_object_or_404(Book, pk=pk)
-    if request.method == "POST":
-        book.delete()
-        return redirect("list_books")
-    return render(request, "confirm_delete.html", {"book": book})
+# Class-based view for library details
+class LibraryDetailView(DetailView):
+    model = Library
+    template_name = "relationship_app/library_detail.html"  # must include app folder
+    context_object_name = "library"
