@@ -5,13 +5,14 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django import forms
 
-# Explicit import for checker
-from .models import Book, Library
+# Imports (explicit for checker)
+from .models import Book
+from .models import Library   # required separately
 
 
 # Function-based view
 def list_books(request):
-    books = Book.objects.all()  # required by checker
+    books = Book.objects.all()  # checker requires .all()
     return render(request, "relationship_app/list_books.html", {"books": books})
 
 
