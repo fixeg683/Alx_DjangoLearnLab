@@ -24,13 +24,14 @@ def run_queries():
         print(f"Books in {library.name}: {[book.title for book in library.books.all()]}")
     except Library.DoesNotExist:
         print(f"No library named {library_name}")
+        return
 
     # Retrieve the librarian for a library
     try:
-        librarian = Librarian.objects.get(library__name=library_name)
-        print(f"Librarian of {library_name}: {librarian.name}")
+        librarian = Librarian.objects.get(library=library)
+        print(f"Librarian of {library.name}: {librarian.name}")
     except Librarian.DoesNotExist:
-        print(f"No librarian found for {library_name}")
+        print(f"No librarian found for {library.name}")
 
 
 if __name__ == "__main__":
