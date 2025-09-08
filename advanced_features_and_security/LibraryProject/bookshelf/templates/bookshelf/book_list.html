@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Books</title>
+</head>
+<body>
+  <h1>Books</h1>
+
+  <form method="get" action=".">
+    <!-- CSRF not required for GET, but form is read-only -->
+    {{ form.q.label_tag }} {{ form.q }}
+    <button type="submit">Search</button>
+  </form>
+
+  <p>
+    <a href="{% url 'bookshelf:book_create' %}">Create new book</a>
+  </p>
+
+  <ul>
+    {% for b in books %}
+      <li>
+        <strong>{{ b.title|escape }}</strong> by {{ b.author.username|escape }}
+        — <a href="{% url 'bookshelf:book_edit' b.pk %}">edit</a>
+        — <a href="{% url 'bookshelf:book_delete' b.pk %}">delete</a>
+      </li>
+    {% empty %}
+      <li>No books yet.</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
