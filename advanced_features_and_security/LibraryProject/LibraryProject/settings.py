@@ -4,11 +4,16 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "replace-this-in-production-very-secret")
+# ⚠️ Replace in production with a secure secret key
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "replace-this-with-a-real-secret-key")
+
+# Debug mode (should be False in production)
 DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
 
+# Hosts allowed to connect
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
+# Applications
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -27,7 +32,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "bookshelf.middleware.CSPMiddleware",  # Lightweight Content-Security-Policy
+    "bookshelf.middleware.CSPMiddleware",  # Lightweight CSP middleware
 ]
 
 ROOT_URLCONF = "LibraryProject.urls"
@@ -51,7 +56,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "LibraryProject.wsgi.application"
 ASGI_APPLICATION = "LibraryProject.asgi.application"
 
-# Database (use sqlite for simplicity)
+# Database (SQLite for dev, override with Postgres in production)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -59,7 +64,7 @@ DATABASES = {
     }
 }
 
-# Password validators
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 9}},
@@ -67,11 +72,13 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
+# Internationalization
 LANGUAGE_CODE = "en-us"
 TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 
+# Static and media files
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
@@ -81,30 +88,30 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# >>>>>>>>> Custom User Model
-AUTH_USER_MODEL = "bookshelf.User"
+# ✅ Custom User Model
+AUTH_USER_MODEL = "bookshelf.CustomUser"
 
 # ---------------- Security Best Practices ----------------
-# IMPORTANT: Set DEBUG = False in production via environment variable above
-# Cookies only over HTTPS:
+# Cookies only over HTTPS
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
-# Additional browser-side protections:
-SECURE_BROWSER_XSS_FILTER = True           # older header; harmless for legacy browsers
+# Browser protections
+SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = "DENY"                   # prevent clickjacking
+X_FRAME_OPTIONS = "DENY"
 
-# Redirect all HTTP to HTTPS:
+# HTTPS redirect (enable in production)
 SECURE_SSL_REDIRECT = os.getenv("DJANGO_SECURE_SSL_REDIRECT", "False") == "True"
 
-# HSTS (enable in production with HTTPS configured)
+# HTTP Strict Transport Security (HSTS)
 SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_SECURE_HSTS_SECONDS", "0"))  # e.g., 31536000 in prod
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", "False") == "True"
 SECURE_HSTS_PRELOAD = os.getenv("DJANGO_SECURE_HSTS_PRELOAD", "False") == "True"
 
-# CSRF trusted origins (set in deployment)
-CSRF_TRUSTED_ORIGINS = os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS") else []
-
-# Content Security Policy — implemented via bookshelf.middleware.CSPMiddleware
-# Adjust directives in middleware to suit your asset/CDN domains.
+# CSRF trusted origins (comma-separated env var)
+CSRF_TRUSTED_ORIGINS = (
+    os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
+    if os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS")
+    else []
+)
