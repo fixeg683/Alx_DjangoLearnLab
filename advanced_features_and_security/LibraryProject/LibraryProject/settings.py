@@ -109,6 +109,9 @@ SECURE_HSTS_SECONDS = int(os.getenv("DJANGO_SECURE_HSTS_SECONDS", "0"))  # e.g.,
 SECURE_HSTS_INCLUDE_SUBDOMAINS = os.getenv("DJANGO_SECURE_HSTS_INCLUDE_SUBDOMAINS", "False") == "True"
 SECURE_HSTS_PRELOAD = os.getenv("DJANGO_SECURE_HSTS_PRELOAD", "False") == "True"
 
+# ✅ Required for secure headers when behind a proxy (Heroku, Nginx, etc.)
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # CSRF trusted origins (comma-separated env var)
 CSRF_TRUSTED_ORIGINS = (
     os.getenv("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",")
