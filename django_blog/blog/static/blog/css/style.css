@@ -1,0 +1,8 @@
+body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 0 20px; }
+header { display:flex; justify-content:space-between; align-items:center; padding: 20px 0; }
+nav a { margin-left: 10px; text-decoration:none; }
+.post-snippet { border-bottom: 1px solid #ddd; padding: 10px 0; }
+.meta { color: #777; font-size: 0.9em; }
+.messages { list-style:none; padding:0; }
+.message { padding: 10px; margin-bottom: 10px; border-radius:4px; }
+.message.success { background:#e0ffe0; }
