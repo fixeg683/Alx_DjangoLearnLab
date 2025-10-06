@@ -7,6 +7,8 @@ from django.db.models import Q
 from taggit.models import Tag
 from .models import Post, Comment
 from .forms import PostForm, CommentForm
+from django.contrib.auth.decorators import login_required
+
 
 # -------------------------
 # Blog Post CRUD Views
@@ -136,3 +138,4 @@ def search(request):
             Q(tags__name__icontains=query)
         ).distinct()
     return render(request, "blog/search_results.html", {"query": query, "results": results})
+
