@@ -2,14 +2,12 @@ from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
-User = get_user_model()
-
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer to represent user data"""
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ['id', 'username', 'email']
 
 
@@ -19,17 +17,17 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ['id', 'username', 'email', 'password']
 
     def create(self, validated_data):
-        # create_user handles hashing the password correctly
-        user = User.objects.create_user(
+        # Explicit call to match required pattern
+        user = get_user_model().objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email', ''),
             password=validated_data['password']
         )
-        # Generate authentication token
+        # Create an auth token for the new user
         Token.objects.create(user=user)
         return user
 
@@ -49,7 +47,6 @@ class LoginSerializer(serializers.Serializer):
         if not user:
             raise serializers.ValidationError("Invalid username or password")
 
-        # Get or create auth token
         token, created = Token.objects.get_or_create(user=user)
         data['token'] = token.key
         return data
