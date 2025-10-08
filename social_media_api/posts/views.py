@@ -1,33 +1,43 @@
-from rest_framework import viewsets, permissions, filters
-from rest_framework.pagination import PageNumberPagination
+from rest_framework import generics, permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
-from .permissions import IsOwnerOrReadOnly
+from django.contrib.auth import get_user_model
+
+CustomUser = get_user_model()
 
 
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 5
-    page_size_query_param = 'page_size'
-    max_page_size = 50
-
-
-class PostViewSet(viewsets.ModelViewSet):
-    queryset = Post.objects.all().select_related('author')
+class PostViewSet(generics.ListCreateAPIView):
+    queryset = Post.objects.all().order_by("-created_at")
     serializer_class = PostSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = StandardResultsSetPagination
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'content']
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
 
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all().select_related('author', 'post')
+class CommentViewSet(generics.ListCreateAPIView):
+    queryset = Comment.objects.all().order_by("-created_at")
     serializer_class = CommentSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
-    pagination_class = StandardResultsSetPagination
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
+
+
+class FeedView(generics.ListAPIView):
+    """
+    Returns a feed of posts from users the current user follows,
+    ordered by creation date (newest first).
+    """
+    serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        # ✅ get the users this user follows
+        following_users = user.following.all()
+        # ✅ return posts by those users, ordered by newest first
+        return Post.objects.filter(author__in=following_users).order_by("-created_at")
