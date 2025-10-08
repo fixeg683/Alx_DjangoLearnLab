@@ -80,14 +80,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'social_media_api.wsgi.application'
 
 # ===========================================
-# DATABASE
+# DATABASE CONFIGURATION
 # ===========================================
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # Use PostgreSQL in production if desired
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.db.backends.postgresql'),
+        'NAME': os.environ.get('DB_NAME', 'social_media_db'),
+        'USER': os.environ.get('DB_USER', 'postgres'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'postgres'),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),  # ✅ Required key added
     }
 }
+
 
 # ===========================================
 # AUTHENTICATION
@@ -157,3 +162,4 @@ if not DEBUG:
 # DEFAULT PRIMARY KEY FIELD
 # ===========================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
